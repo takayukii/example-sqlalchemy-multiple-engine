@@ -6,8 +6,9 @@ from app import db
 
 class ListenersRegisterer:
 
-    def __init__(self, sessionmaker):
+    def __init__(self, sessionmaker, employee_class):
         self.Session = sessionmaker
+        self.employee_class = employee_class
 
     def up(self):
         try:
@@ -16,10 +17,10 @@ class ListenersRegisterer:
         except InvalidRequestError as ex:
             pass
 
-        event.listen(db.Employee, 'after_insert', self.__after_insert)
+        event.listen(self.employee_class, 'after_insert', self.__after_insert)
 
     def down(self):
-        event.remove(db.Employee, 'after_insert', self.__after_insert)
+        event.remove(self.employee_class, 'after_insert', self.__after_insert)
 
     def __after_insert(self, mapper, connection, target):
         print('__after_insert: employee.name = {}'.format(target.name))
